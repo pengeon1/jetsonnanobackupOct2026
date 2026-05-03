@@ -1,0 +1,13 @@
+0 verbose cli /home/jetson/.nvm/versions/node/v24.15.0/bin/node /home/jetson/.nvm/versions/node/v24.15.0/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@11.12.1
+2 info using node@v24.15.0
+3 silly config load:file:/home/jetson/.nvm/versions/node/v24.15.0/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/jetson/edgent/.npmrc
+5 silly config load:file:/home/jetson/.npmrc
+6 silly config load:file:/home/jetson/.nvm/versions/node/v24.15.0/etc/npmrc
+7 verbose title npm exec tsx src/index.ts --role=requester
+8 verbose argv "exec" "--" "tsx" "src/index.ts" "--role=requester"
+9 verbose logfile logs-max:10 dir:/home/jetson/.npm/_logs/2026-05-03T15_45_28_979Z-
+10 verbose logfile /home/jetson/.npm/_logs/2026-05-03T15_45_28_979Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files

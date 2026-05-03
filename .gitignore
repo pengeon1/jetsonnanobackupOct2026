@@ -1,0 +1,38 @@
+# Security: NEVER push these to GitHub
+.ssh/
+.gnupg/
+.gitconfig
+
+# Block system lock files and permission-denied folders
+.dbus/
+.ICEauthority
+.Xauthority
+.sudo_as_admin_successful
+
+# Block heavy runtime, tool, and system configurations
+.ros/
+.cargo/
+.rustup/
+.nvm/
+.pki/
+.compiz/
+.mozilla/
+.mplayer/
+.hunter/
+.cache/
+.nv/
+.config/
+.local/
+
+# Block heavy media, compressed archives, and installer binaries
+*.mp4
+*.whl
+*.zip
+axl-bin/
+
+# Block heavy ROS workspaces and system packages
+ros_ws/
+ros_rap/
+temp_ros_lib/
+new_custom_lib/
+dist-packages/

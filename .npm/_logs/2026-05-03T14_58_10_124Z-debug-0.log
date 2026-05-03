@@ -1,0 +1,19 @@
+0 verbose cli /home/jetson/.nvm/versions/node/v24.15.0/bin/node /home/jetson/.nvm/versions/node/v24.15.0/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@11.12.1
+2 info using node@v24.15.0
+3 silly config load:file:/home/jetson/.nvm/versions/node/v24.15.0/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/jetson/edgent/.npmrc
+5 silly config load:file:/home/jetson/.npmrc
+6 silly config load:file:/home/jetson/.nvm/versions/node/v24.15.0/etc/npmrc
+7 verbose title npm exec tsx src/core/agent.ts --force-delegate --prompt=explain how neural networks learn in one sentence
+8 verbose argv "exec" "--" "tsx" "src/core/agent.ts" "--force-delegate" "--prompt=explain how neural networks learn in one sentence"
+9 verbose logfile logs-max:10 dir:/home/jetson/.npm/_logs/2026-05-03T14_58_10_124Z-
+10 verbose logfile /home/jetson/.npm/_logs/2026-05-03T14_58_10_124Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files
+13 verbose cwd /home/jetson/edgent
+14 verbose os Linux 4.9.253
+15 verbose node v24.15.0
+16 verbose npm  v11.12.1
+17 verbose exit 0
+18 info ok

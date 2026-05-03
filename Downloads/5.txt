@@ -1,0 +1,249 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_RULES    64
+#define MAX_PROD     64
+#define MAX_SYMBOLS  256
+#define MAX_NAME_LEN 32
+#define MAX_USED     512
+
+typedef struct {
+    char NT[MAX_NAME_LEN];                   // nonterminal name, e.g. "A" or "A'"
+    char productions[MAX_PROD][MAX_SYMBOLS]; // alternatives
+    int rhscount;
+} GRM;
+
+GRM rules[MAX_RULES];
+int rule_count = 0;
+
+/* global registry of used nonterminal names (to avoid collisions) */
+char used_names[MAX_USED][MAX_NAME_LEN];
+int used_count = 0;
+
+/* ---------- utilities ---------- */
+
+void trim_spaces(char *s) {
+    int r = 0, w = 0;
+    while (s[r]) {
+        if (s[r] != ' ' && s[r] != '\t' && s[r] != '\r') s[w++] = s[r];
+        r++;
+    }
+    s[w] = '\0';
+}
+
+int is_epsilon(const char *s) { return (strcmp(s, "$") == 0); }
+
+int name_used(const char *name) {
+    for (int i = 0; i < used_count; ++i) if (strcmp(used_names[i], name) == 0) return 1;
+    return 0;
+}
+
+void register_name(const char *name) {
+    if (used_count < MAX_USED && !name_used(name)) strncpy(used_names[used_count++], name, MAX_NAME_LEN-1);
+}
+
+/* create a unique new nonterminal name by appending apostrophes to parent */
+void make_unique_nt(const char *parent, char *out) {
+    // start with parent + "'"
+    char buf[MAX_NAME_LEN];
+    snprintf(buf, sizeof(buf), "%s'", parent);
+    while (name_used(buf)) {
+        size_t L = strlen(buf);
+        if (L + 1 < sizeof(buf)) buf[L] = '\'' , buf[L+1] = '\0';
+        else break;
+    }
+    strncpy(out, buf, MAX_NAME_LEN-1);
+    register_name(out);
+}
+
+/* compute longest common prefix length between a and b */
+int lcp_len(const char *a, const char *b) {
+    int i = 0;
+    while (a[i] && b[i] && a[i] == b[i]) ++i;
+    return i;
+}
+
+/* build full string for a current item: base s + appended subname (if any) */
+void build_full(const char *base, int sub_index, const char sub_names[][MAX_NAME_LEN], char *out) {
+    out[0] = '\0';
+    if (base[0]) strncat(out, base, MAX_SYMBOLS-1);
+    if (sub_index >= 0) {
+        strncat(out, sub_names[sub_index], MAX_SYMBOLS-1);
+    }
+}
+
+/* ---------- left-factoring core ---------- */
+
+/*
+  We'll recursively factor a nonterminal (NT_name) with given productions (prods, pcount).
+  Printing happens inline:
+    NT_name-> alt1 | alt2 | ...
+  For any common-prefix group, we create a new nonterminal (NT_name with appended ')',
+  and recursively factor its alternatives.
+*/
+void left_factor_recursive(const char *NT_name, char prods[][MAX_SYMBOLS], int pcount) {
+    // curr items: each item has base string s and optionally a link to a sub created in this call
+    typedef struct { char s[MAX_SYMBOLS]; int sub_idx; } CurrItem;
+    CurrItem curr[MAX_PROD];
+    int curr_count = 0;
+
+    for (int i = 0; i < pcount; ++i) {
+        strncpy(curr[curr_count].s, prods[i], MAX_SYMBOLS-1);
+        curr[curr_count].sub_idx = -1;
+        curr_count++;
+    }
+
+    // Subs created in this call
+    typedef struct {
+        char name[MAX_NAME_LEN];                     // new nonterminal name
+        char sub_prods[MAX_PROD][MAX_SYMBOLS];       // suffixes for this new NT
+        int sub_count;
+    } SubNT;
+    SubNT subs[MAX_PROD];
+    int subs_count = 0;
+
+    // repeatedly find the longest prefix shared by >=2 current full productions
+    while (1) {
+        int best_len = 0;
+        char best_pfx[MAX_SYMBOLS] = {0};
+        int best_idxs[MAX_PROD], best_idx_count = 0;
+
+        // compute full strings for curr items (they are base + possible sub-name)
+        char fulls[MAX_PROD][MAX_SYMBOLS];
+        char subnames[MAX_PROD][MAX_NAME_LEN]; // temporary list of sub names used by curr
+        for (int i = 0; i < curr_count; ++i) {
+            char tmp_sub[MAX_NAME_LEN] = "";
+            if (curr[i].sub_idx >= 0) strncpy(tmp_sub, subs[curr[i].sub_idx].name, MAX_NAME_LEN-1);
+            build_full(curr[i].s, curr[i].sub_idx, (const char (*)[MAX_NAME_LEN])subnames, fulls[i]); // placeholder; we'll rebuild properly below
+            // the above is placeholder; instead build properly:
+        }
+        // rebuild properly (since subs array grows, we use direct build_full calls)
+        for (int i = 0; i < curr_count; ++i) {
+            if (curr[i].sub_idx >= 0) build_full(curr[i].s, curr[i].sub_idx, (const char (*)[MAX_NAME_LEN])subs, fulls[i]);
+            else { strncpy(fulls[i], curr[i].s, MAX_SYMBOLS-1); fulls[i][MAX_SYMBOLS-1] = '\0'; }
+        }
+
+        // find best LCP among any pair of fulls (skip epsilons "$")
+        for (int i = 0; i < curr_count; ++i) {
+            if (is_epsilon(fulls[i])) continue;
+            for (int j = i+1; j < curr_count; ++j) {
+                if (is_epsilon(fulls[j])) continue;
+                int L = lcp_len(fulls[i], fulls[j]);
+                if (L <= 0) continue;
+                // count how many productions share this prefix
+                int tmp_idxs[MAX_PROD], tmp_count = 0;
+                for (int k = 0; k < curr_count; ++k) {
+                    if (!is_epsilon(fulls[k]) && strncmp(fulls[k], fulls[i], L) == 0) {
+                        tmp_idxs[tmp_count++] = k;
+                    }
+                }
+                if (tmp_count >= 2 && L > best_len) {
+                    best_len = L;
+                    best_idx_count = tmp_count;
+                    for (int t = 0; t < tmp_count; ++t) best_idxs[t] = tmp_idxs[t];
+                    strncpy(best_pfx, fulls[i], best_len);
+                    best_pfx[best_len] = '\0';
+                }
+            }
+        }
+
+        if (best_len == 0) break; // no more factoring possible
+
+        // create a new sub nonterminal for this prefix
+        SubNT *S = &subs[subs_count++];
+        make_unique_nt(NT_name, S->name); // e.g. A -> A'
+        S->sub_count = 0;
+
+        // build next_curr: keep unmarked items, and insert one item which is prefix + link to new sub
+        CurrItem next_curr[MAX_PROD];
+        int next_count = 0;
+        int marked[MAX_PROD] = {0};
+        for (int t = 0; t < best_idx_count; ++t) marked[best_idxs[t]] = 1;
+
+        // collect suffixes for S
+        for (int t = 0; t < curr_count; ++t) {
+            if (marked[t]) {
+                char *full = fulls[t];
+                const char *suf = full + best_len;
+                if (*suf == '\0') strncpy(S->sub_prods[S->sub_count++], "$", MAX_SYMBOLS-1);
+                else strncpy(S->sub_prods[S->sub_count++], suf, MAX_SYMBOLS-1);
+            }
+        }
+
+        // keep unmarked items
+        for (int k = 0; k < curr_count; ++k) {
+            if (!marked[k]) {
+                strncpy(next_curr[next_count].s, curr[k].s, MAX_SYMBOLS-1);
+                next_curr[next_count].sub_idx = curr[k].sub_idx;
+                next_count++;
+            }
+        }
+
+        // append the factored prefix (as one item linked to the created sub)
+        strncpy(next_curr[next_count].s, best_pfx, MAX_SYMBOLS-1);
+        next_curr[next_count].sub_idx = subs_count - 1; // link to S
+        next_count++;
+
+        // move next_curr -> curr
+        curr_count = next_count;
+        for (int k = 0; k < curr_count; ++k) curr[k] = next_curr[k];
+    } // end while factoring
+
+    // ---- print this nonterminal's productions ----
+    printf("%s->", NT_name);
+    for (int i = 0; i < curr_count; ++i) {
+        if (i) printf("|");
+        // print base
+        printf("%s", curr[i].s);
+        // if it links to a sub, print the sub name (no separator, consistent with prior style)
+        if (curr[i].sub_idx >= 0) printf("%s", subs[curr[i].sub_idx].name);
+    }
+    // if there were no productions (shouldn't happen), print $
+    if (curr_count == 0) printf("$");
+    printf("\n");
+
+    // recursively print sub-nonterminals
+    for (int s = 0; s < subs_count; ++s) {
+        left_factor_recursive(subs[s].name, subs[s].sub_prods, subs[s].sub_count);
+    }
+}
+
+/* ---------- input and driver ---------- */
+
+void take_grammar_input() {
+    char line[512];
+    printf("Enter number of production rules: ");
+    if (scanf("%d", &rule_count) != 1) exit(1);
+    getchar();
+
+    for (int i = 0; i < rule_count; ++i) {
+        printf("Enter production (e.g., A->abc|abd|b|$): ");
+        if (!fgets(line, sizeof(line), stdin)) exit(1);
+        line[strcspn(line, "\n")] = 0;
+        char *lhs = strtok(line, "->");
+        char *rhs = strtok(NULL, "->");
+        if (!lhs || !rhs) { fprintf(stderr, "Bad format. Use X->alpha|beta|...\n"); exit(1); }
+        trim_spaces(lhs); trim_spaces(rhs);
+        strncpy(rules[i].NT, lhs, MAX_NAME_LEN-1);
+        rules[i].rhscount = 0;
+        // register NT name
+        register_name(rules[i].NT);
+        char *alt = strtok(rhs, "|");
+        while (alt) {
+            trim_spaces(alt);
+            strncpy(rules[i].productions[rules[i].rhscount++], alt, MAX_SYMBOLS-1);
+            alt = strtok(NULL, "|");
+        }
+    }
+}
+
+int main(void) {
+    take_grammar_input();
+    printf("\nGrammar after Left Factoring:\n");
+    for (int i = 0; i < rule_count; ++i) {
+        left_factor_recursive(rules[i].NT, rules[i].productions, rules[i].rhscount);
+    }
+    return 0;
+}
