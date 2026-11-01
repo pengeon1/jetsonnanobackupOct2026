@@ -1,0 +1,2 @@
+set(rose_tvmc_msg_MESSAGE_FILES "/home/jetson/ros_ws/src/tvmc-msg/msg/Command.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/ControlMode.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/CurrentPoint.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/DoF.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/PidConstants.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/PidLimits.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/TargetPoint.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/Thrust.msg;/home/jetson/ros_ws/src/tvmc-msg/msg/LEDControl.msg")
+set(rose_tvmc_msg_SERVICE_FILES "")

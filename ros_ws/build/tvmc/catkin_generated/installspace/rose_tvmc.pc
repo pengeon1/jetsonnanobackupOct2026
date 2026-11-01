@@ -1,0 +1,8 @@
+prefix=/home/jetson/ros_ws/install
+
+Name: rose_tvmc
+Description: Description of rose_tvmc
+Version: 0.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy roslib std_msgs message_runtime

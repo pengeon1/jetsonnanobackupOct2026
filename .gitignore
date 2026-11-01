@@ -29,10 +29,3 @@
 *.whl
 *.zip
 axl-bin/
-
-# Block heavy ROS workspaces and system packages
-ros_ws/
-ros_rap/
-temp_ros_lib/
-new_custom_lib/
-dist-packages/

@@ -1,0 +1,12 @@
+graphsurgeon/DynamicGraph.py,sha256=U90kIKKPb21YqNFONkbKjTTs49jlvgUPeRSFR-GM1pA,19133
+graphsurgeon/StaticGraph.py,sha256=1tOotV10Mm17Xh2HqCZAUpSDzkgmAZH2pjxJUObwrRk,15511
+graphsurgeon/__init__.py,sha256=onHgEQk9AZe3woFU9V5Oh7-kcxJZDSBBl4l_StCNq_I,2848
+graphsurgeon/_utils.py,sha256=QwJqGcu6CRUpYSkNpcR9AlHweDVevZUfS_rrmCk5-Qc,4171
+graphsurgeon/extras.py,sha256=QByYD84agGy0QnhSoQ-evsGtQ1DVvYkBs6ji4J9JwcQ,5928
+graphsurgeon/node_manipulation.py,sha256=sSwpNYbDVO_irHaeiCoeMcfI1q1NZQZiD48new4Jllo,8750
+graphsurgeon-0.4.5.dist-info/LICENSE.txt,sha256=u8jMlGIpp-oxvMQSWlnDN_1tQ9Rts4vwYQ8UQTeFeu0,2365
+graphsurgeon-0.4.5.dist-info/METADATA,sha256=daFj2yhEVmFeM2dlkSlwi3g1d9CtLa97ooQTI9OCq-E,991
+graphsurgeon-0.4.5.dist-info/WHEEL,sha256=Z-nyYpwrcSqxfdux5Mbn_DQ525iP7J2DG3JgGvOYyTQ,110
+graphsurgeon-0.4.5.dist-info/top_level.txt,sha256=_sXWiFIiCLWGIDT5tO1FRMcMqi_wbfVGG68ixTsFruk,13
+graphsurgeon-0.4.5.dist-info/zip-safe,sha256=AbpHGcgLb-kRsJGnwFEktk7uzpZOCcBY74-YBdrKVGs,1
+graphsurgeon-0.4.5.dist-info/RECORD,,
